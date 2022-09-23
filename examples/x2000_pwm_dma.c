@@ -39,7 +39,8 @@
 
 static volatile XHAL_PWM_TypeDef *xpwm = NULL;
 
-
+// Ensure this is corresponding to the reserved-memory range in your device tree
+// This address must be 16-byte aligned
 #define DMA_SPACE_PHYSADDR	0x07ff0000
 
 int main(int argc, char **argv) {
@@ -68,21 +69,31 @@ int main(int argc, char **argv) {
 
 	printf("PWM DMA buffer at %p\n", (void *)DMA_SPACE_PHYSADDR);
 
+	// Fill in the PWM values. The length (number of values) must be multiple of 16.
 	for (size_t i=0; i<16; i+=2) {
-		pwm_values[i] = 0x00100010;
-		pwm_values[i+1] = 0x00080018;
+		pwm_values[i] = 0x00100010;	// 16:16
+		pwm_values[i+1] = 0x00080018;	// 8:24
 	}
 
-	XHAL_PWM_SetChannelEnabled(xpwm, 1, 0);
-	XHAL_PWM_SetChannelDMAEnabled(xpwm, 1, 0);
+	// Now this is hardcoded to PWM channel 1
+	// Read code in src/peripheral/pwm/ for usage
+
+	XHAL_PWM_SetChannelEnabled(xpwm, 1, 1);
 	XHAL_PWM_SetChannelMode(xpwm, 1, 1);
 
+	XHAL_PWM_SetChannelDMAEnabled(xpwm, 1, 0);
+
+	// Again. The length must be multiple of 16.
 	XHAL_PWM_SetChannelDMAData(xpwm, 1, DMA_SPACE_PHYSADDR, 16);
 
 	while (xpwm->DFSM & XHAL_BIT(1));
 
+	// Comment this line to disable repeating
 	XHAL_PWM_SetChannelDMARepeatEnabled(xpwm, 1, 1);
+
 	XHAL_PWM_SetChannelDMAEnabled(xpwm, 1, 1);
+
+	// If repeat is disabled, this will only trigger once
 	XHAL_PWM_StartChannelDMA(xpwm, 1);
 
 	printf("Done.\n");
