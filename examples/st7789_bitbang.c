@@ -34,9 +34,8 @@
 #if defined(XHAL_CHIP_X2000)
 #define CHIP_NAME "X2000"
 #else
-#error This chip
+#warning This is designed to run on X2000. Your mileage may vary.
 #endif
-
 
 static volatile XHAL_GPIO_TypeDef *xgpiob = NULL;
 
