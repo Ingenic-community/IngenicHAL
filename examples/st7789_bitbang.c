@@ -33,13 +33,18 @@
 
 #if defined(XHAL_CHIP_X2000)
 #define CHIP_NAME "X2000"
+#elif defined(XHAL_CHIP_X1000)
+#define CHIP_NAME "X1000"
 #else
-#warning This is designed to run on X2000. Your mileage may vary.
+#warning Chip not defined.
 #endif
 
-static volatile XHAL_GPIO_TypeDef *xgpiob = NULL;
+static volatile XHAL_GPIO_TypeDef *xgpioa = NULL, *xgpiob = NULL, *xgpioc = NULL;
 
 static void GPIO_Init() {
+
+
+#if defined(XHAL_CHIP_X2000)
 	for (size_t i=0; i<8; i++) {
 		XHAL_GPIO_SetAsGPIO(xgpiob, i, 0);
 	}
@@ -54,10 +59,28 @@ static void GPIO_Init() {
 	XHAL_GPIO_SetAsGPIO(xgpiob, 24, 0);
 	// RS
 	XHAL_GPIO_SetAsGPIO(xgpiob, 25, 0);
+#elif defined(XHAL_CHIP_X1000)
+	for (size_t i=0; i<8; i++) {
+		XHAL_GPIO_SetAsGPIO(xgpioa, i, 0);
+	}
+
+	// RESET
+	XHAL_GPIO_SetAsGPIO(xgpioc, 25, 0);
+	// RD
+	XHAL_GPIO_SetAsGPIO(xgpiob, 16, 0);
+	// WR
+	XHAL_GPIO_SetAsGPIO(xgpiob, 17, 0);
+	// CS
+	XHAL_GPIO_SetAsGPIO(xgpiob, 18, 0);
+	// RS
+	XHAL_GPIO_SetAsGPIO(xgpiob, 20, 0);
+#endif
+
 }
 
 #define delay()
 
+#if defined(XHAL_CHIP_X2000)
 static inline void PIN_RES(uint8_t v) {
 	XHAL_GPIO_WritePin(xgpiob, 23, v);
 	delay();
@@ -88,6 +111,40 @@ static inline void PIN_DATA8(uint8_t v) {
 	xgpiob->PAT0S = v;
 	delay();
 }
+
+#elif defined(XHAL_CHIP_X1000)
+static inline void PIN_RES(uint8_t v) {
+	XHAL_GPIO_WritePin(xgpioc, 25, v);
+	delay();
+}
+
+static inline void PIN_RD(uint8_t v) {
+	XHAL_GPIO_WritePin(xgpiob, 16, v);
+	delay();
+}
+
+static inline void PIN_WR(uint8_t v) {
+	XHAL_GPIO_WritePin(xgpiob, 17, v);
+	delay();
+}
+
+static inline void PIN_CS(uint8_t v) {
+	XHAL_GPIO_WritePin(xgpiob, 18, v);
+	delay();
+}
+
+static inline void PIN_RS(uint8_t v) {
+	XHAL_GPIO_WritePin(xgpiob, 20, v);
+	delay();
+}
+
+static inline void PIN_DATA8(uint8_t v) {
+	xgpioa->PAT0C = 0x0000ff;
+	xgpioa->PAT0S = v;
+	delay();
+}
+
+#endif
 
 void HD_reset() {
 	PIN_RES(0);
@@ -133,11 +190,12 @@ void LCD_init()
 
 //--------------------------------ST7789V Frame rate setting----------------------------------//
 	LLCD_WRITE_CMD (0xb2);
-	LLCD_WRITE_DATA (0x0c);
-	LLCD_WRITE_DATA (0x0c);
+	LLCD_WRITE_DATA (0x01);
+	LLCD_WRITE_DATA (0x01);
 	LLCD_WRITE_DATA (0x00);
 	LLCD_WRITE_DATA (0x33);
 	LLCD_WRITE_DATA (0x33);
+
 	LLCD_WRITE_CMD (0xb7);
 	LLCD_WRITE_DATA (0x35);
 //---------------------------------ST7789V Power setting--------------------------------------//
@@ -151,8 +209,19 @@ void LCD_init()
 	LLCD_WRITE_DATA (0x0b);
 	LLCD_WRITE_CMD (0xc4);
 	LLCD_WRITE_DATA (0x20);
+	//FRCTRL1
+//	LLCD_WRITE_CMD (0xb3);
+//	LLCD_WRITE_DATA (0x00);
+//	LLCD_WRITE_DATA (0x00);
+//	LLCD_WRITE_DATA (0x00);
+	//FRCTRL2
 	LLCD_WRITE_CMD (0xc6);
-	LLCD_WRITE_DATA (0x0f);
+	LLCD_WRITE_DATA ((0x7 << 5) | 0x1);
+
+	//TE
+	LLCD_WRITE_CMD (0x0e);
+	LLCD_WRITE_DATA (0xc0);
+
 	LLCD_WRITE_CMD (0xd0);
 	LLCD_WRITE_DATA (0xa4);
 	LLCD_WRITE_DATA (0xa1);
@@ -242,7 +311,7 @@ void LCD_TEST_ColorBar()
 {
 
 	unsigned int i,j;
-	LCD_setwindow(0,0,239,319);
+//	LCD_setwindow(0,0,239,319);
 
 	PIN_CS(0);
 
@@ -298,7 +367,7 @@ void LCD_TEST_ColorBar2()
 {
 
 	unsigned int i,j;
-	LCD_setwindow(0,0,239,319);
+//	LCD_setwindow(0,0,239,319);
 
 	PIN_CS(0);
 
@@ -350,6 +419,62 @@ void LCD_TEST_ColorBar2()
 	PIN_CS(1);
 }
 
+void LCD_TEST_Black()
+{
+	unsigned int i,j;
+
+	PIN_CS(0);
+
+	PIN_RS(1);
+	PIN_RD(1);
+
+	for(i=0;i<320;i++)
+	{
+		for(j=0;j<240;j++)
+		{
+			PIN_DATA8(0);
+			PIN_WR(0);
+			PIN_WR(1);
+			PIN_DATA8(0);
+			PIN_WR(0);
+			PIN_WR(1);
+			PIN_DATA8(0);
+			PIN_WR(0);
+			PIN_WR(1);
+		}
+	}
+
+	PIN_CS(1);
+}
+
+void LCD_TEST_White()
+{
+	unsigned int i,j;
+
+	PIN_CS(0);
+
+	PIN_RS(1);
+	PIN_RD(1);
+
+	for(i=0;i<320;i++)
+	{
+		for(j=0;j<240;j++)
+		{
+			PIN_DATA8(255);
+			PIN_WR(0);
+			PIN_WR(1);
+			PIN_DATA8(255);
+			PIN_WR(0);
+			PIN_WR(1);
+			PIN_DATA8(255);
+			PIN_WR(0);
+			PIN_WR(1);
+		}
+	}
+
+	PIN_CS(1);
+}
+
 int main(int argc, char **argv) {
 	int fd = open("/dev/mem", O_RDWR|O_SYNC);
 
@@ -365,7 +490,9 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 
+	xgpioa = phys_mem + (XHAL_REGWIDTH_GPIO_PORT * 0);
 	xgpiob = phys_mem + (XHAL_REGWIDTH_GPIO_PORT * 1);
+	xgpioc = phys_mem + (XHAL_REGWIDTH_GPIO_PORT * 2);
 
 	GPIO_Init();
 	printf("GPIO init done.\n");
@@ -374,9 +501,25 @@ int main(int argc, char **argv) {
 
 	printf("LCD init done.\n");
 
+	LCD_setwindow(0,0,239,319);
+
+	size_t i=0;
+
 	while (1) {
-		LCD_TEST_ColorBar();
-		LCD_TEST_ColorBar2();
+//		LCD_TEST_ColorBar();
+//		LCD_TEST_ColorBar2();
+		LCD_TEST_Black();
+		i++;
+		printf("%u\n", i);
+		usleep(1000*1000);
+		LCD_TEST_White();
+		i++;
+		printf("%u\n", i);
+		usleep(1000*1000);
+
+		if (i == 2000) {
+			break;
+		}
 	}
 
 	printf("done.\n");

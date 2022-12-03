@@ -1,0 +1,16 @@
+
+set(CMAKE_C_LINK_FLAGS "")
+
+set(TOOLCHAIN_PREFIX "mipsel-buildroot-linux-musl-")
+# set(TOOLCHAIN_PREFIX "mipsel-buildroot-linux-uclibc-")
+# set(TOOLCHAIN_PREFIX "mips-linux-gnu-")
+# set(TOOLCHAIN_PREFIX "mipsel-linux-gnu-")
+
+set(CMAKE_C_COMPILER    "${TOOLCHAIN_PREFIX}gcc")
+set(CMAKE_ASM_COMPILER  "${TOOLCHAIN_PREFIX}gcc")
+set(CMAKE_CXX_COMPILER  "${TOOLCHAIN_PREFIX}g++")
+set(CMAKE_AR "${TOOLCHAIN_PREFIX}ar")
+set(CMAKE_NM "${TOOLCHAIN_PREFIX}nm")
+set(CMAKE_RANLIB "${TOOLCHAIN_PREFIX}ranlib")
+set(CMAKE_OBJCOPY "${TOOLCHAIN_PREFIX}objcopy")
+set(CMAKE_OBJDUMP "${TOOLCHAIN_PREFIX}objdump")

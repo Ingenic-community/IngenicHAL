@@ -1,0 +1,56 @@
+#ifndef _CPU_IRQ_H_
+#define _CPU_IRQ_H_
+
+enum {
+    IRQ_CPU_SOFT = 0,
+    IRQ_CPU_DMA_CHANNEL = 1,
+    IRQ_CPU_INTC = 2,
+
+    IRQ_INTC_START    = 3,
+    IRQ_DMIC    = IRQ_INTC_START + 0,
+    IRQ_ACI0    = IRQ_INTC_START + 1,
+    IRQ_SFC     = IRQ_INTC_START + 7,
+    IRQ_SSI0    = IRQ_INTC_START + 8,
+    IRQ_PDMA    = IRQ_INTC_START + 10,
+    IRQ_PDMAD   = IRQ_INTC_START + 11,
+    IRQ_GPIO3   = IRQ_INTC_START + 14,
+    IRQ_GPIO2   = IRQ_INTC_START + 15,
+    IRQ_GPIO1   = IRQ_INTC_START + 16,
+    IRQ_GPIO0   = IRQ_INTC_START + 17,
+    IRQ_OTG     = IRQ_INTC_START + 21,
+    IRQ_AES     = IRQ_INTC_START + 23,
+    IRQ_TCU2    = IRQ_INTC_START + 25,
+    IRQ_TCU1    = IRQ_INTC_START + 26,
+    IRQ_TCU0    = IRQ_INTC_START + 27,
+    IRQ_CIM     = IRQ_INTC_START + 30,
+    IRQ_LCD     = IRQ_INTC_START + 31,
+
+    IRQ_RTC     = IRQ_INTC_START + 32 + 0,
+    IRQ_MSC1    = IRQ_INTC_START + 32 + 4,
+    IRQ_MSC0    = IRQ_INTC_START + 32 + 5,
+    IRQ_SCC     = IRQ_INTC_START + 32 + 6,
+    IRQ_PCM0    = IRQ_INTC_START + 32 + 8,
+    IRQ_HARB2   = IRQ_INTC_START + 32 + 12,
+    IRQ_HARB0   = IRQ_INTC_START + 32 + 14,
+    IRQ_CPM     = IRQ_INTC_START + 32 + 15,
+    IRQ_UART2   = IRQ_INTC_START + 32 + 17,
+    IRQ_UART1   = IRQ_INTC_START + 32 + 18,
+    IRQ_UART0   = IRQ_INTC_START + 32 + 19,
+    IRQ_DDR     = IRQ_INTC_START + 32 + 20,
+    IRQ_EFUSE   = IRQ_INTC_START + 32 + 22,
+    IRQ_GMAC     = IRQ_INTC_START + 32 + 23,
+    IRQ_I2C2    = IRQ_INTC_START + 32 + 26,
+    IRQ_I2C1    = IRQ_INTC_START + 32 + 27,
+    IRQ_I2C0    = IRQ_INTC_START + 32 + 28,
+    IRQ_PDMAM   = IRQ_INTC_START + 32 + 29,
+    IRQ_JPEG    = IRQ_INTC_START + 32 + 30,
+
+    IRQ_INTC_END      = (IRQ_INTC_START + 64),
+
+    IRQ_GPIO_START  = IRQ_INTC_END,
+    IRQ_GPIO_END    = (IRQ_GPIO_START + 4 * 32),
+
+    IRQ_NUMS  = IRQ_GPIO_END,
+};
+
+#endif /* _CPU_IRQ_H_ */
